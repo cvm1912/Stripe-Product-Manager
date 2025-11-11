@@ -64,3 +64,24 @@ app.listen(PORT, () => {
 # ▶️ Run the app
 
 npm start
+
+
+# Install Packages
+
+npm install @prisma/client
+npm install --save-dev prisma typescript ts-node @types/node
+
+# Initialize Prisma
+npx prisma init
+
+# Configure PostgreSQL Connection
+DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/mydb?schema=public"
+
+
+# Create a Prisma Client 
+
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
+export default prisma;
+
+

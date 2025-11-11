@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
   provider = "prisma-client"
@@ -13,3 +8,69 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+enum KycStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+
+model Organizer {
+  id          String   @id @default(cuid())
+  name        String
+  email       String   @unique
+  kycStatus   KycStatus   // pending, approved, rejected
+  events      Event[]
+}
+
+
+model Event {
+  id          String   @id @default(cuid())
+  name        String
+  date        DateTime
+  venue       String
+  description String
+  organizer   Organizer @relation(fields: [organizerId], references: [id])
+  organizerId String
+  tickets     Ticket[]
+}
+
+enum TicketType {
+  VIP
+  GENERAL
+}
+
+model Ticket {
+  id          String  @id @default(cuid())
+  type        TicketType  // VIP, General
+  price       Int     // in INR/cent
+  quantity    Int
+  sold        Int     @default(0)
+  stripeProductId String
+  stripePriceId   String
+  event       Event   @relation(fields: [eventId], references: [id])
+  eventId     String
+  purchases   Purchase[]
+}
+
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+}
+
+
+model Purchase {
+  id          String @id @default(cuid())
+  buyerEmail  String
+  ticket      Ticket @relation(fields: [ticketId], references: [id])
+  ticketId    String
+  quantity    Int
+  amount      Int
+  paymentStatus PaymentStatus 
+  stripePaymentIntentId String
+  createdAt   DateTime @default(now())
+}
+
